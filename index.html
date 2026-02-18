@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>AR QR - Plato 01</title>
+<meta charset="utf-8">
+<title>AR QR - Plato 01</title>
 
-  <!-- A-Frame -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 
-  <!-- AR.js con soporte para marcador -->
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
-
-  <style>
-    body { margin: 0; overflow: hidden; }
-  </style>
+<style>
+body { margin:0; overflow:hidden; }
+</style>
 </head>
 
 <body>
 
-<a-scene
-  embedded
+<a-scene 
+  embedded 
   arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
 
   <a-marker 
@@ -29,12 +26,10 @@
     smoothTolerance="0.01"
     smoothThreshold="5">
 
-
     <a-entity
       gltf-model="Plato_01.glb"
-      scale="20.5 20.5 20.5"
-      position="0 0 0"
-      rotation="0 0 0">
+      scale="15 15 15"
+      position="0 0 0">
     </a-entity>
 
   </a-marker>
