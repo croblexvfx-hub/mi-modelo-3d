@@ -19,11 +19,16 @@
 
 <a-scene
   embedded
-  arjs="sourceType: webcam; debugUIEnabled: false;"
->
+  arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
 
-  <!-- Marcador tipo patrón -->
-  <a-marker type="pattern" url="marker.patt">
+  <a-marker 
+    type="pattern" 
+    url="marker.patt"
+    smooth="true"
+    smoothCount="10"
+    smoothTolerance="0.01"
+    smoothThreshold="5">
+
 
     <a-entity
       gltf-model="Plato_01.glb"
