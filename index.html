@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador 3D</title>
+    <!-- Importa el componente model-viewer de Google -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; background-color: #f0f0f0; }
+        model-viewer { width: 100vw; height: 100vh; }
+    </style>
+</head>
+<body>
+
+    <!-- El atributo 'ar' habilita la Realidad Virtual. 
+         'ar-modes' con 'scene-viewer' permite el auto-lanzamiento en Android si se configura el enlace. -->
+    <model-viewer 
+        id="modelo"
+        src="Plato_01.glb" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        auto-rotate 
+        shadow-intensity="1">
+    </model-viewer>
+
+    <script>
+        // Intentar activar la Realidad Aumentada automáticamente al cargar
+        // Nota: Muchos navegadores bloquean el auto-AR por seguridad; 
+        // si falla, el modelo se verá en 3D y el usuario solo deberá tocar el botón de AR.
+        window.addEventListener('load', () => {
+            const modelViewer = document.querySelector("#modelo");
+            setTimeout(() => {
+                modelViewer.activateAR();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
