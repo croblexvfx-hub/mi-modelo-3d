@@ -1,35 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>AR QR - Plato 01</title>
+  <meta charset="UTF-8">
+  <title>Menu AR Test</title>
 
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
-<style>
-body { margin:0; overflow:hidden; }
-</style>
+  <style>
+    body { margin: 0; overflow: hidden; }
+
+    .ui {
+      position: fixed;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      z-index: 10;
+    }
+
+    button {
+      padding: 12px 20px;
+      margin: 0 10px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: none;
+      background: black;
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
 
-<a-scene 
-  embedded 
-  arjs="sourceType: webcam; trackingMethod: best;">
+<div class="ui">
+  <button onclick="prevModel()">◀</button>
+  <button onclick="nextModel()">▶</button>
+</div>
 
-  <a-marker preset="hiro">
-  <a-entity
-    gltf-model="Plato_01.glb"
-    scale="4 4 4"
-    position="0 0 0">
+<a-scene
+  mindar-image="imageTargetSrc: margot_targets.mind;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  embedded
+  color-space="sRGB"
+  renderer="colorManagement: true, physicallyCorrectLights"
+>
+
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+  <a-entity id="target" mindar-image-target="targetIndex: 0">
+    <a-entity id="modelContainer" position="0 0 0"></a-entity>
   </a-entity>
-  </a-marker>
-
-
-  <a-entity camera></a-entity>
 
 </a-scene>
+
+<script>
+
+const models = [
+  "Plato_01.glb",
+  "Plato_02.glb"
+];
+
+let currentIndex = 0;
+let currentModel = null;
+
+const container = document.querySelector("#modelContainer");
+
+function loadModel(index) {
+
+  if (currentModel) {
+    container.removeChild(currentModel);
+  }
+
+  const model = document.createElement("a-gltf-model");
+  model.setAttribute("src", models[index]);
+  model.setAttribute("position", "0 0 0");
+  model.setAttribute("rotation", "0 0 0");
+  model.setAttribute("scale", "0.3 0.3 0.3");
+
+  container.appendChild(model);
+
+  currentModel = model;
+}
+
+function nextModel() {
+  currentIndex = (currentIndex + 1) % models.length;
+  loadModel(currentIndex);
+}
+
+function prevModel() {
+  currentIndex = (currentIndex - 1 + models.length) % models.length;
+  loadModel(currentIndex);
+}
+
+// Cargar primero automáticamente
+loadModel(currentIndex);
+
+</script>
 
 </body>
 </html>
