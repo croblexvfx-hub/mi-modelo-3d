@@ -40,7 +40,7 @@
     filterBeta: 0.003;
   "
   color-space="sRGB"
-  renderer="colorManagement: true, physicallyCorrectLights"
+  renderer="colorManagement: true; physicallyCorrectLights: true; exposure: 1"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: true"
 >
@@ -54,6 +54,19 @@
   </a-assets>
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+  <!-- 🌍 Luz ambiental -->
+  <a-entity light="type: ambient; intensity: 0.6"></a-entity>
+
+  <!-- ☀️ Luz principal -->
+  <a-entity light="type: directional; intensity: 1.2"
+            position="1 2 1">
+  </a-entity>
+
+  <!-- 💡 Luz de relleno -->
+  <a-entity light="type: directional; intensity: 0.4"
+            position="-1 1 -1">
+  </a-entity>
 
   <a-entity mindar-image-target="targetIndex: 0" id="anchor">
   </a-entity>
@@ -72,14 +85,12 @@ const models = [
 
 let currentIndex = 0;
 let currentModel = null;
-let currentShadow = null;
 
 const anchor = document.querySelector("#anchor");
 
 function loadModel(index) {
 
   if (currentModel) anchor.removeChild(currentModel);
-  if (currentShadow) anchor.removeChild(currentShadow);
 
   const model = document.createElement("a-gltf-model");
   model.setAttribute("src", models[index]);
@@ -89,23 +100,7 @@ function loadModel(index) {
 
   anchor.appendChild(model);
 
-  // SOMBRA MÁS PEQUEÑA (clave)
-  const shadow = document.createElement("a-circle");
-  shadow.setAttribute("rotation", "-90 0 0");
-  shadow.setAttribute("radius", "1.3");   // más pequeña que el plato
-  shadow.setAttribute("position", "0 -0.03 0");
-
-  shadow.setAttribute("material", `
-    shader: flat;
-    color: #000000;
-    transparent: true;
-    opacity: 0.35;
-  `);
-
-  anchor.appendChild(shadow);
-
   currentModel = model;
-  currentShadow = shadow;
 }
 
 function preloadAdjacent(index) {
