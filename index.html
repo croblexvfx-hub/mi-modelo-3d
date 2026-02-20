@@ -1,32 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <title>Margot AR Menu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- A-Frame -->
+    <meta charset="UTF-8" />
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-    <!-- MindAR -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
+      body { margin: 0; overflow: hidden; }
 
       .ui-button {
-        z-index: 9999;
         position: fixed;
-        bottom: 30px;
-        padding: 15px 25px;
-        font-size: 18px;
-        background: white;
-        border-radius: 10px;
+        bottom: 20px;
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+        border-radius: 50%;
         border: none;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        background: rgba(0,0,0,0.6);
+        color: white;
+        z-index: 2;
       }
 
       #prev { left: 20px; }
@@ -49,50 +40,60 @@
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-entity id="model-container"></a-entity>
-      </a-entity>
-
-      <!-- Luz básica para que el PBR no muera -->
-      <a-light type="ambient" intensity="1"></a-light>
-      <a-light type="directional" position="0 2 2" intensity="0.8"></a-light>
+      <a-entity id="anchor" mindar-image-target="targetIndex: 0"></a-entity>
 
     </a-scene>
 
-<script>
-  const models = ["Plato_01.glb", "Plato_02.glb"];
-  let index = 0;
+    <script>
+      const models = [
+        "./Plato_01.glb",
+        "./Plato_02.glb"
+      ];
 
-  const container = document.querySelector("#model-container");
-  const nextBtn = document.querySelector("#next");
-  const prevBtn = document.querySelector("#prev");
+      let index = 0;
+      let currentContainer = null;
 
-  function loadModel() {
-    container.innerHTML = "";
+      const anchor = document.querySelector("#anchor");
 
-    const model = document.createElement("a-gltf-model");
-    model.setAttribute("src", models[index]);
-    model.setAttribute("position", "0 0 0");
-    model.setAttribute("rotation", "90 0 0");
-    model.setAttribute("scale", "4.7 4.7 4.7");
+      function loadModel() {
 
-    container.appendChild(model);
+        // Eliminar modelo anterior
+        if (currentContainer) {
+          anchor.removeChild(currentContainer);
+        }
 
-    console.log("Modelo cargado:", models[index]);
-  }
+        // Crear contenedor (mejora estabilidad rotación)
+        const container = document.createElement("a-entity");
+        container.setAttribute("position", "0 0 0");
+        container.setAttribute("rotation", "0 0 0");
 
-  nextBtn.addEventListener("click", function() {
-    index = (index + 1) % models.length;
-    loadModel();
-  });
+        // Crear modelo
+        const model = document.createElement("a-gltf-model");
+        model.setAttribute("src", models[index]);
+        model.setAttribute("position", "0 0 0");
+        model.setAttribute("rotation", "90 0 0");
+        model.setAttribute("scale", "4.7 4.7 4.7");
 
-  prevBtn.addEventListener("click", function() {
-    index = (index - 1 + models.length) % models.length;
-    loadModel();
-  });
+        container.appendChild(model);
+        anchor.appendChild(container);
 
-  loadModel();
-</script>
+        currentContainer = container;
+      }
+
+      document.querySelector("#prev").addEventListener("click", () => {
+        index = (index - 1 + models.length) % models.length;
+        loadModel();
+      });
+
+      document.querySelector("#next").addEventListener("click", () => {
+        index = (index + 1) % models.length;
+        loadModel();
+      });
+
+      // Cargar primer modelo al iniciar
+      loadModel();
+
+    </script>
 
   </body>
 </html>
