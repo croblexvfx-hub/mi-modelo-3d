@@ -1,104 +1,92 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>Menu AR Test</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>Margot AR Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
-  <style>
-    body { margin: 0; overflow: hidden; }
+    <!-- MindAR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
-    .ui {
-      position: fixed;
-      bottom: 30px;
-      width: 100%;
-      text-align: center;
-      z-index: 10;
-    }
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
 
-    button {
-      padding: 12px 20px;
-      margin: 0 10px;
-      font-size: 18px;
-      border-radius: 8px;
-      border: none;
-      background: black;
-      color: white;
-    }
-  </style>
-</head>
+      .ui-button {
+        position: fixed;
+        bottom: 30px;
+        padding: 15px 25px;
+        font-size: 18px;
+        background: white;
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      }
 
-<body>
+      #prev { left: 20px; }
+      #next { right: 20px; }
+    </style>
+  </head>
 
-<div class="ui">
-  <button onclick="prevModel()">◀</button>
-  <button onclick="nextModel()">▶</button>
-</div>
+  <body>
 
-<a-scene
-  mindar-image="
-  imageTargetSrc: margot_targets.mind;
-  filterMinCF: 0.001;
-  filterBeta: 0.01;
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
-  color-space="sRGB"
-  renderer="colorManagement: true, physicallyCorrectLights"
->
+    <button id="prev" class="ui-button">←</button>
+    <button id="next" class="ui-button">→</button>
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-scene
+      mindar-image="imageTargetSrc: margot_targets.mind; filterMinCF: 0.001; filterBeta: 0.01;"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
 
-  <a-entity id="target" mindar-image-target="targetIndex: 0">
-    <a-entity id="modelContainer" position="0 0 0"></a-entity>
-  </a-entity>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-</a-scene>
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-entity id="model-container"></a-entity>
+      </a-entity>
 
-<script>
+      <!-- Luz básica para que el PBR no muera -->
+      <a-light type="ambient" intensity="1"></a-light>
+      <a-light type="directional" position="0 2 2" intensity="0.8"></a-light>
 
-const models = [
-  "Plato_01.glb",
-  "Plato_02.glb"
-];
+    </a-scene>
 
-let currentIndex = 0;
-let currentModel = null;
+    <script>
+      const models = ["Plato_01.glb", "Plato_02.glb"];
+      let index = 0;
+      const container = document.querySelector("#model-container");
 
-const container = document.querySelector("#modelContainer");
+      function loadModel() {
+        container.innerHTML = "";
 
-function loadModel(index) {
+        const model = document.createElement("a-gltf-model");
+        model.setAttribute("src", models[index]);
+        model.setAttribute("position", "0 0 0");
+        model.setAttribute("rotation", "90 0 0");
+        model.setAttribute("scale", "2 2 2");
 
-  if (currentModel) {
-    container.removeChild(currentModel);
-  }
+        container.appendChild(model);
+      }
 
-  const model = document.createElement("a-gltf-model");
-  model.setAttribute("src", models[index]);
-  model.setAttribute("position", "0 0 0");
-  model.setAttribute("rotation", "90 0 0");
-  model.setAttribute("scale", "2.5 2.5 2.5");
+      document.querySelector("#next").addEventListener("click", () => {
+        index = (index + 1) % models.length;
+        loadModel();
+      });
 
-  container.appendChild(model);
+      document.querySelector("#prev").addEventListener("click", () => {
+        index = (index - 1 + models.length) % models.length;
+        loadModel();
+      });
 
-  currentModel = model;
-}
+      loadModel();
+    </script>
 
-function nextModel() {
-  currentIndex = (currentIndex + 1) % models.length;
-  loadModel(currentIndex);
-}
-
-function prevModel() {
-  currentIndex = (currentIndex - 1 + models.length) % models.length;
-  loadModel(currentIndex);
-}
-
-// Cargar primero automáticamente
-loadModel(currentIndex);
-
-</script>
-
-</body>
+  </body>
 </html>
