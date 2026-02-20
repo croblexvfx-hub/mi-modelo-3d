@@ -89,22 +89,18 @@ function loadModel(index) {
 
   anchor.appendChild(model);
 
-  // SOMBRA FORZADA
-  const shadow = document.createElement("a-plane");
+  // SOMBRA MÁS PEQUEÑA (clave)
+  const shadow = document.createElement("a-circle");
   shadow.setAttribute("rotation", "-90 0 0");
-  shadow.setAttribute("width", "3.5");
-  shadow.setAttribute("height", "3.5");
-  shadow.setAttribute("position", "0 -0.05 0");
+  shadow.setAttribute("radius", "1.3");   // más pequeña que el plato
+  shadow.setAttribute("position", "0 -0.03 0");
 
   shadow.setAttribute("material", `
     shader: flat;
     color: #000000;
     transparent: true;
-    opacity: 0.45;
-    depthWrite: false;
+    opacity: 0.35;
   `);
-
-  shadow.object3D.renderOrder = 999;
 
   anchor.appendChild(shadow);
 
