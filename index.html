@@ -41,7 +41,6 @@
   mindar-image="imageTargetSrc: margot_targets.mind;"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
-  embedded
   color-space="sRGB"
   renderer="colorManagement: true, physicallyCorrectLights"
 >
@@ -76,7 +75,7 @@ function loadModel(index) {
   model.setAttribute("src", models[index]);
   model.setAttribute("position", "0 0 0");
   model.setAttribute("rotation", "0 0 0");
-  model.setAttribute("scale", "0.3 0.3 0.3");
+  model.setAttribute("scale", "0.01 0.01 0.01");
 
   container.appendChild(model);
 
