@@ -32,9 +32,7 @@
 <button id="next" class="ui-button">→</button>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; 
-  filterMinCF: 0.0001; 
-  filterBeta: 0.003;"
+  mindar-image="imageTargetSrc: margot_targets.mind; filterMinCF: 0.0001; filterBeta: 0.003;"
   color-space="sRGB"
   renderer="colorManagement: true, physicallyCorrectLights"
   vr-mode-ui="enabled: false"
@@ -48,7 +46,10 @@
 
 const models = [
   "./Plato_01.glb",
-  "./Plato_02.glb"
+  "./Plato_02.glb",
+  "./Plato_03.glb",
+  "./Plato_04.glb",
+  "./Plato_05.glb"
 ];
 
 let currentIndex = 0;
@@ -56,13 +57,17 @@ const anchor = document.querySelector("#anchor");
 const loadedModels = {};
 
 function createModel(index) {
+
   const container = document.createElement("a-entity");
   container.setAttribute("position", "0 0 0");
   container.setAttribute("visible", false);
 
   const model = document.createElement("a-gltf-model");
   model.setAttribute("src", models[index]);
-  model.setAttribute("rotation", "90 0 0");
+
+  const yRotation = index * 20; // ← incremento de 20° por modelo
+
+  model.setAttribute("rotation", `90 ${yRotation} 0`);
   model.setAttribute("scale", "4.7 4.7 4.7");
 
   container.appendChild(model);
@@ -79,11 +84,9 @@ function removeModel(index) {
 }
 
 function updateVisible() {
-
   Object.keys(loadedModels).forEach(i => {
     loadedModels[i].setAttribute("visible", parseInt(i) === currentIndex);
   });
-
 }
 
 function preloadNeighbors() {
