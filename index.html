@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8" />
+  <title>Menu AR</title>
+
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
     body { margin: 0; overflow: hidden; }
@@ -11,14 +13,13 @@
     .ui-button {
       position: fixed;
       bottom: 20px;
-      width: 60px;
-      height: 60px;
-      font-size: 30px;
-      border-radius: 50%;
-      border: none;
+      font-size: 28px;
+      padding: 12px 20px;
       background: rgba(0,0,0,0.6);
       color: white;
-      z-index: 2;
+      border-radius: 12px;
+      border: none;
+      z-index: 10;
     }
 
     #prev { left: 20px; }
@@ -32,99 +33,103 @@
 <button id="next" class="ui-button">→</button>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind; filterMinCF: 0.0001; filterBeta: 0.003;"
+  mindar-image="
+    imageTargetSrc: margot_targets.mind;
+    autoStart: true;
+    filterMinCF: 0.0001;
+    filterBeta: 0.003;
+  "
   color-space="sRGB"
   renderer="colorManagement: true, physicallyCorrectLights"
   vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
+  device-orientation-permission-ui="enabled: true"
 >
+
+  <a-assets>
+    <a-asset-item id="model0" src="Plato_01.glb"></a-asset-item>
+    <a-asset-item id="model1" src="Plato_02.glb"></a-asset-item>
+    <a-asset-item id="model2" src="Plato_03.glb"></a-asset-item>
+    <a-asset-item id="model3" src="Plato_04.glb"></a-asset-item>
+    <a-asset-item id="model4" src="Plato_05.glb"></a-asset-item>
+  </a-assets>
+
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-  <a-entity id="anchor" mindar-image-target="targetIndex: 0"></a-entity>
+
+  <a-entity mindar-image-target="targetIndex: 0" id="anchor">
+  </a-entity>
+
 </a-scene>
 
 <script>
 
 const models = [
-  "./Plato_01.glb",
-  "./Plato_02.glb",
-  "./Plato_03.glb",
-  "./Plato_04.glb",
-  "./Plato_05.glb"
+  "#model0",
+  "#model1",
+  "#model2",
+  "#model3",
+  "#model4"
 ];
 
 let currentIndex = 0;
+let currentModel = null;
+let currentShadow = null;
+
 const anchor = document.querySelector("#anchor");
-const loadedModels = {};
 
-function createModel(index) {
+function loadModel(index) {
 
-  const container = document.createElement("a-entity");
-  container.setAttribute("position", "0 0 0");
-  container.setAttribute("visible", false);
+  if (currentModel) {
+    anchor.removeChild(currentModel);
+  }
+
+  if (currentShadow) {
+    anchor.removeChild(currentShadow);
+  }
 
   const model = document.createElement("a-gltf-model");
   model.setAttribute("src", models[index]);
-
-  const yRotation = index * 20; // ← incremento de 20° por modelo
-
-  model.setAttribute("rotation", `90 ${yRotation} 0`);
+  model.setAttribute("position", "0 0 0");
+  model.setAttribute("rotation", "90 " + (index * 20) + " 0");
   model.setAttribute("scale", "4.7 4.7 4.7");
 
-  container.appendChild(model);
-  anchor.appendChild(container);
+  anchor.appendChild(model);
 
-  loadedModels[index] = container;
+  const shadow = document.createElement("a-plane");
+  shadow.setAttribute("rotation", "-90 0 0");
+  shadow.setAttribute("width", "2");
+  shadow.setAttribute("height", "2");
+  shadow.setAttribute("color", "#000000");
+  shadow.setAttribute("opacity", "0.35");
+  shadow.setAttribute("position", "0 0.01 0");
+
+  anchor.appendChild(shadow);
+
+  currentModel = model;
+  currentShadow = shadow;
 }
 
-function removeModel(index) {
-  if (loadedModels[index]) {
-    anchor.removeChild(loadedModels[index]);
-    delete loadedModels[index];
-  }
-}
+function preloadAdjacent(index) {
+  const prev = (index - 1 + models.length) % models.length;
+  const next = (index + 1) % models.length;
 
-function updateVisible() {
-  Object.keys(loadedModels).forEach(i => {
-    loadedModels[i].setAttribute("visible", parseInt(i) === currentIndex);
-  });
-}
-
-function preloadNeighbors() {
-
-  const prev = (currentIndex - 1 + models.length) % models.length;
-  const next = (currentIndex + 1) % models.length;
-
-  [currentIndex, prev, next].forEach(i => {
-    if (!loadedModels[i]) createModel(i);
-  });
-
-  Object.keys(loadedModels).forEach(i => {
-    if (![currentIndex, prev, next].includes(parseInt(i))) {
-      removeModel(parseInt(i));
-    }
-  });
-
-}
-
-function switchModel(newIndex) {
-  currentIndex = newIndex;
-  preloadNeighbors();
-  updateVisible();
+  document.querySelector(models[prev]);
+  document.querySelector(models[next]);
 }
 
 document.querySelector("#prev").addEventListener("click", () => {
-  const newIndex = (currentIndex - 1 + models.length) % models.length;
-  switchModel(newIndex);
+  currentIndex = (currentIndex - 1 + models.length) % models.length;
+  loadModel(currentIndex);
+  preloadAdjacent(currentIndex);
 });
 
 document.querySelector("#next").addEventListener("click", () => {
-  const newIndex = (currentIndex + 1) % models.length;
-  switchModel(newIndex);
+  currentIndex = (currentIndex + 1) % models.length;
+  loadModel(currentIndex);
+  preloadAdjacent(currentIndex);
 });
 
-createModel(0);
-preloadNeighbors();
-updateVisible();
+loadModel(currentIndex);
+preloadAdjacent(currentIndex);
 
 </script>
 
