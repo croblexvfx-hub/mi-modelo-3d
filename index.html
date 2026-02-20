@@ -38,7 +38,10 @@
 </div>
 
 <a-scene
-  mindar-image="imageTargetSrc: margot_targets.mind;"
+  mindar-image="
+  imageTargetSrc: margot_targets.mind;
+  filterMinCF: 0.001;
+  filterBeta: 0.01;
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
   color-space="sRGB"
@@ -75,7 +78,7 @@ function loadModel(index) {
   model.setAttribute("src", models[index]);
   model.setAttribute("position", "0 0 0");
   model.setAttribute("rotation", "90 0 0");
-  model.setAttribute("scale", "4 4 4");
+  model.setAttribute("scale", "2.5 2.5 2.5");
 
   container.appendChild(model);
 
