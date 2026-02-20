@@ -73,9 +73,9 @@ function loadModel(index) {
 
   const model = document.createElement("a-gltf-model");
   model.setAttribute("src", models[index]);
-  model.setAttribute("position", "0 0 0");
+  model.setAttribute("position", "0 0 0.1");
   model.setAttribute("rotation", "0 0 0");
-  model.setAttribute("scale", "0.01 0.01 0.01");
+  model.setAttribute("scale", "1 1 1");
 
   container.appendChild(model);
 
