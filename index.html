@@ -58,35 +58,40 @@
 
     </a-scene>
 
-    <script>
-      const models = ["Plato_01.glb", "Plato_02.glb"];
-      let index = 0;
-      const container = document.querySelector("#model-container");
+<script>
+  const models = ["Plato_01.glb", "Plato_02.glb"];
+  let index = 0;
 
-      function loadModel() {
-        container.innerHTML = "";
+  const container = document.querySelector("#model-container");
+  const nextBtn = document.querySelector("#next");
+  const prevBtn = document.querySelector("#prev");
 
-        const model = document.createElement("a-gltf-model");
-        model.setAttribute("src", models[index]);
-        model.setAttribute("position", "0 0 0");
-        model.setAttribute("rotation", "90 0 0");
-        model.setAttribute("scale", "2 2 2");
+  function loadModel() {
+    container.innerHTML = "";
 
-        container.appendChild(model);
-      }
+    const model = document.createElement("a-gltf-model");
+    model.setAttribute("src", models[index]);
+    model.setAttribute("position", "0 0 0");
+    model.setAttribute("rotation", "90 0 0");
+    model.setAttribute("scale", "2 2 2");
 
-      document.querySelector("#next").addEventListener("click", () => {
-        index = (index + 1) % models.length;
-        loadModel();
-      });
+    container.appendChild(model);
 
-      document.querySelector("#prev").addEventListener("click", () => {
-        index = (index - 1 + models.length) % models.length;
-        loadModel();
-      });
+    console.log("Modelo cargado:", models[index]);
+  }
 
-      loadModel();
-    </script>
+  nextBtn.addEventListener("click", function() {
+    index = (index + 1) % models.length;
+    loadModel();
+  });
+
+  prevBtn.addEventListener("click", function() {
+    index = (index - 1 + models.length) % models.length;
+    loadModel();
+  });
+
+  loadModel();
+</script>
 
   </body>
 </html>
