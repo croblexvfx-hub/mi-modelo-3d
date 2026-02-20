@@ -89,14 +89,22 @@ function loadModel(index) {
 
   anchor.appendChild(model);
 
-  // SOMBRA MÁS BAJA Y MÁS GRANDE
+  // SOMBRA FORZADA
   const shadow = document.createElement("a-plane");
   shadow.setAttribute("rotation", "-90 0 0");
-  shadow.setAttribute("width", "3");
-  shadow.setAttribute("height", "3");
-  shadow.setAttribute("color", "#000000");
-  shadow.setAttribute("opacity", "0.5");
-  shadow.setAttribute("position", "0 -0.2 0"); // MÁS ABAJO
+  shadow.setAttribute("width", "3.5");
+  shadow.setAttribute("height", "3.5");
+  shadow.setAttribute("position", "0 -0.05 0");
+
+  shadow.setAttribute("material", `
+    shader: flat;
+    color: #000000;
+    transparent: true;
+    opacity: 0.45;
+    depthWrite: false;
+  `);
+
+  shadow.object3D.renderOrder = 999;
 
   anchor.appendChild(shadow);
 
