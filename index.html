@@ -1,99 +1,129 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      body { margin: 0; overflow: hidden; }
+<head>
+  <meta charset="UTF-8" />
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image-aframe.prod.js"></script>
 
-      .ui-button {
-        position: fixed;
-        bottom: 20px;
-        width: 60px;
-        height: 60px;
-        font-size: 30px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(0,0,0,0.6);
-        color: white;
-        z-index: 2;
-      }
+  <style>
+    body { margin: 0; overflow: hidden; }
 
-      #prev { left: 20px; }
-      #next { right: 20px; }
-    </style>
-  </head>
+    .ui-button {
+      position: fixed;
+      bottom: 20px;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      z-index: 2;
+    }
 
-  <body>
+    #prev { left: 20px; }
+    #next { right: 20px; }
+  </style>
+</head>
 
-    <button id="prev" class="ui-button">←</button>
-    <button id="next" class="ui-button">→</button>
+<body>
 
-    <a-scene
-      mindar-image="imageTargetSrc: margot_targets.mind; filterMinCF: 0.0001; filterBeta: 0.003;"
-      color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
+<button id="prev" class="ui-button">←</button>
+<button id="next" class="ui-button">→</button>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<a-scene
+  mindar-image="imageTargetSrc: margot_targets.mind; 
+  filterMinCF: 0.0001; 
+  filterBeta: 0.003;"
+  color-space="sRGB"
+  renderer="colorManagement: true, physicallyCorrectLights"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-entity id="anchor" mindar-image-target="targetIndex: 0"></a-entity>
+</a-scene>
 
-      <a-entity id="anchor" mindar-image-target="targetIndex: 0"></a-entity>
+<script>
 
-    </a-scene>
+const models = [
+  "./Plato_01.glb",
+  "./Plato_02.glb"
+];
 
-    <script>
-      const models = [
-        "./Plato_01.glb",
-        "./Plato_02.glb"
-      ];
+let currentIndex = 0;
+const anchor = document.querySelector("#anchor");
+const loadedModels = {};
 
-      let index = 0;
-      let currentContainer = null;
+function createModel(index) {
+  const container = document.createElement("a-entity");
+  container.setAttribute("position", "0 0 0");
+  container.setAttribute("visible", false);
 
-      const anchor = document.querySelector("#anchor");
+  const model = document.createElement("a-gltf-model");
+  model.setAttribute("src", models[index]);
+  model.setAttribute("rotation", "90 0 0");
+  model.setAttribute("scale", "4.7 4.7 4.7");
 
-      function loadModel() {
+  container.appendChild(model);
+  anchor.appendChild(container);
 
-        // Eliminar modelo anterior
-        if (currentContainer) {
-          anchor.removeChild(currentContainer);
-        }
+  loadedModels[index] = container;
+}
 
-        // Crear contenedor (mejora estabilidad rotación)
-        const container = document.createElement("a-entity");
-        container.setAttribute("position", "0 0 0");
-        container.setAttribute("rotation", "0 0 0");
+function removeModel(index) {
+  if (loadedModels[index]) {
+    anchor.removeChild(loadedModels[index]);
+    delete loadedModels[index];
+  }
+}
 
-        // Crear modelo
-        const model = document.createElement("a-gltf-model");
-        model.setAttribute("src", models[index]);
-        model.setAttribute("position", "0 0 0");
-        model.setAttribute("rotation", "90 0 0");
-        model.setAttribute("scale", "4.7 4.7 4.7");
+function updateVisible() {
 
-        container.appendChild(model);
-        anchor.appendChild(container);
+  Object.keys(loadedModels).forEach(i => {
+    loadedModels[i].setAttribute("visible", parseInt(i) === currentIndex);
+  });
 
-        currentContainer = container;
-      }
+}
 
-      document.querySelector("#prev").addEventListener("click", () => {
-        index = (index - 1 + models.length) % models.length;
-        loadModel();
-      });
+function preloadNeighbors() {
 
-      document.querySelector("#next").addEventListener("click", () => {
-        index = (index + 1) % models.length;
-        loadModel();
-      });
+  const prev = (currentIndex - 1 + models.length) % models.length;
+  const next = (currentIndex + 1) % models.length;
 
-      // Cargar primer modelo al iniciar
-      loadModel();
+  [currentIndex, prev, next].forEach(i => {
+    if (!loadedModels[i]) createModel(i);
+  });
 
-    </script>
+  Object.keys(loadedModels).forEach(i => {
+    if (![currentIndex, prev, next].includes(parseInt(i))) {
+      removeModel(parseInt(i));
+    }
+  });
 
-  </body>
+}
+
+function switchModel(newIndex) {
+  currentIndex = newIndex;
+  preloadNeighbors();
+  updateVisible();
+}
+
+document.querySelector("#prev").addEventListener("click", () => {
+  const newIndex = (currentIndex - 1 + models.length) % models.length;
+  switchModel(newIndex);
+});
+
+document.querySelector("#next").addEventListener("click", () => {
+  const newIndex = (currentIndex + 1) % models.length;
+  switchModel(newIndex);
+});
+
+createModel(0);
+preloadNeighbors();
+updateVisible();
+
+</script>
+
+</body>
 </html>
