@@ -19,7 +19,7 @@
       color: white;
       border-radius: 12px;
       border: none;
-      z-index: 10;
+      z-index: 999;
     }
 
     #prev { left: 20px; }
@@ -44,7 +44,6 @@
     colorManagement: true;
     exposure: 3.0;
   "
-  color-space="sRGB"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: true"
 >
@@ -56,15 +55,15 @@
     <a-asset-item id="model3" src="Plato_04.glb"></a-asset-item>
     <a-asset-item id="model4" src="Plato_05.glb"></a-asset-item>
 
-    <!-- HDR real -->
-    <img id="hdr"
-         src="https://cdn.jsdelivr.net/gh/aframevr/assets@master/hdri/venice_sunset_1k.hdr">
+    <!-- Environment JPG (estable en A-Frame) -->
+    <img id="envmap"
+         src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg">
   </a-assets>
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <!-- HDR como entorno PBR -->
-  <a-sky src="#hdr" visible="false"></a-sky>
+  <!-- Entorno PBR -->
+  <a-sky src="#envmap" visible="false"></a-sky>
 
   <!-- Luces -->
   <a-light type="ambient" intensity="1.2"></a-light>
@@ -102,7 +101,9 @@ const anchor = document.querySelector("#anchor");
 
 function loadModel(index) {
 
-  if (currentModel) anchor.removeChild(currentModel);
+  if (currentModel) {
+    anchor.removeChild(currentModel);
+  }
 
   const model = document.createElement("a-gltf-model");
   model.setAttribute("src", models[index]);
@@ -114,17 +115,29 @@ function loadModel(index) {
   currentModel = model;
 }
 
+function preloadAdjacent(index) {
+  const prev = (index - 1 + models.length) % models.length;
+  const next = (index + 1) % models.length;
+
+  // Fuerza carga en caché
+  document.querySelector(models[prev]).getAttribute("src");
+  document.querySelector(models[next]).getAttribute("src");
+}
+
 document.querySelector("#prev").addEventListener("click", () => {
   currentIndex = (currentIndex - 1 + models.length) % models.length;
   loadModel(currentIndex);
+  preloadAdjacent(currentIndex);
 });
 
 document.querySelector("#next").addEventListener("click", () => {
   currentIndex = (currentIndex + 1) % models.length;
   loadModel(currentIndex);
+  preloadAdjacent(currentIndex);
 });
 
 loadModel(currentIndex);
+preloadAdjacent(currentIndex);
 
 </script>
 
