@@ -55,21 +55,26 @@
     <a-asset-item id="model2" src="Plato_03.glb"></a-asset-item>
     <a-asset-item id="model3" src="Plato_04.glb"></a-asset-item>
     <a-asset-item id="model4" src="Plato_05.glb"></a-asset-item>
+
+    <!-- HDR real -->
+    <img id="hdr"
+         src="https://cdn.jsdelivr.net/gh/aframevr/assets@master/hdri/venice_sunset_1k.hdr">
   </a-assets>
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <!-- Luz ambiental suave -->
+  <!-- HDR como entorno PBR -->
+  <a-sky src="#hdr" visible="false"></a-sky>
+
+  <!-- Luces -->
   <a-light type="ambient" intensity="1.2"></a-light>
 
-  <!-- Luz principal -->
   <a-light
     type="directional"
     intensity="2.8"
     position="1 3 2">
   </a-light>
 
-  <!-- Luz secundaria -->
   <a-light
     type="directional"
     intensity="1.6"
