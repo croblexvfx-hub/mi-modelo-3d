@@ -6,7 +6,6 @@
 
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/RGBELoader.js"></script>
 
   <style>
     body { margin: 0; overflow: hidden; }
@@ -20,7 +19,7 @@
       color: white;
       border-radius: 12px;
       border: none;
-      z-index: 999;
+      z-index: 10;
     }
 
     #prev { left: 20px; }
@@ -34,17 +33,18 @@
 <button id="next" class="ui-button">→</button>
 
 <a-scene
-  id="scene"
   mindar-image="
     imageTargetSrc: margot_targets.mind;
     autoStart: true;
     filterMinCF: 0.0001;
     filterBeta: 0.003;
   "
+  color-space="sRGB"
   renderer="
-    physicallyCorrectLights: true;
     colorManagement: true;
+    physicallyCorrectLights: true;
     exposure: 2.8;
+    toneMapping: ACESFilmic;
   "
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: true"
@@ -56,42 +56,34 @@
     <a-asset-item id="model2" src="Plato_03.glb"></a-asset-item>
     <a-asset-item id="model3" src="Plato_04.glb"></a-asset-item>
     <a-asset-item id="model4" src="Plato_05.glb"></a-asset-item>
+
+    <!-- HDR PRO -->
+    <a-asset-item id="hdrEnv"
+      src="https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr">
+    </a-asset-item>
   </a-assets>
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-  <a-light type="ambient" intensity="0.4"></a-light>
-  <a-light type="directional" intensity="1.2" position="1 3 2"></a-light>
+  <!-- Luz ambiente suave -->
+  <a-light type="ambient" intensity="0.8"></a-light>
+
+  <!-- Luz principal -->
+  <a-light type="directional"
+           intensity="3.0"
+           position="1 3 2">
+  </a-light>
+
+  <!-- HDR environment -->
+  <a-entity
+    environment="preset: none; background: false; environmentMap: #hdrEnv">
+  </a-entity>
 
   <a-entity mindar-image-target="targetIndex: 0" id="anchor"></a-entity>
 
 </a-scene>
 
 <script>
-
-const sceneEl = document.querySelector('#scene');
-
-sceneEl.addEventListener('renderstart', () => {
-
-  const renderer = sceneEl.renderer;
-  const pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
-
-  new THREE.RGBELoader()
-    .setDataType(THREE.UnsignedByteType)
-    .load(
-      'https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr',
-      function(texture) {
-
-        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-
-        sceneEl.object3D.environment = envMap;
-
-        texture.dispose();
-        pmremGenerator.dispose();
-      }
-    );
-});
 
 const models = [
   "#model0",
@@ -103,6 +95,7 @@ const models = [
 
 let currentIndex = 0;
 let currentModel = null;
+
 const anchor = document.querySelector("#anchor");
 
 function loadModel(index) {
@@ -119,12 +112,13 @@ function loadModel(index) {
   currentModel = model;
 }
 
+/* 🔥 Precarga SOLO anterior y siguiente */
 function preloadAdjacent(index) {
   const prev = (index - 1 + models.length) % models.length;
   const next = (index + 1) % models.length;
 
-  document.querySelector(models[prev]).getAttribute("src");
-  document.querySelector(models[next]).getAttribute("src");
+  document.querySelector(models[prev]);
+  document.querySelector(models[next]);
 }
 
 document.querySelector("#prev").addEventListener("click", () => {
